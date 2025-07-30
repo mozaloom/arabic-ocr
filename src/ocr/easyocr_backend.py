@@ -1,0 +1,1 @@
+# EasyOCR backend for text extraction

@@ -1,0 +1,1 @@
+# Main entry point for the text extraction application

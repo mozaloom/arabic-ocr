@@ -1,0 +1,1 @@
+# TrOCR backend for text extraction

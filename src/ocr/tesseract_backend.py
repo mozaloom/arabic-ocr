@@ -1,0 +1,1 @@
+# Tesseract backend for text extraction

@@ -1,0 +1,1 @@
+# PaddleOCR backend for text extraction
