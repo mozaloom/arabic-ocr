@@ -1,0 +1,45 @@
+# OCR Text Extraction Framework Dependencies
+
+# Core dependencies
+numpy>=1.21.0
+Pillow>=8.3.0
+pdf2image>=2.1.0
+
+# OCR backends
+paddlepaddle>=2.4.0
+paddleocr>=2.6.0
+easyocr>=1.6.0
+pytesseract>=0.3.8
+torch>=1.11.0
+torchvision>=0.12.0
+transformers>=4.20.0
+
+# PDF processing
+PyPDF2>=2.10.0
+pdfplumber>=0.7.0
+
+# Utilities
+opencv-python>=4.5.0
+matplotlib>=3.5.0
+pandas>=1.3.0
+tqdm>=4.64.0
+
+# Optional GPU support (uncomment if needed)
+# paddlepaddle-gpu>=2.4.0  # For PaddleOCR GPU
+# torch>=1.11.0+cu113      # For TrOCR GPU
+
+# Development and testing
+pytest>=7.0.0
+black>=22.0.0
+flake8>=4.0.0
+
+# Note: Some packages may require system-level dependencies:
+# - Tesseract OCR: Install tesseract-ocr and language packs
+#   Ubuntu/Debian: sudo apt-get install tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
+#   macOS: brew install tesseract tesseract-lang
+#   Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
+#
+# - Poppler (for pdf2image): 
+#   Ubuntu/Debian: sudo apt-get install poppler-utils
+#   macOS: brew install poppler
+#   Windows: Download from https://poppler.freedesktop.org/

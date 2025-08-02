@@ -1,11 +1,10 @@
-# PaddleOCR backend for text extraction
+# Fixed PaddleOCR backend for text extraction
 from paddleocr import PaddleOCR
 from pdf2image import convert_from_path
 import os
-import numpy as np
+import json
 from PIL import Image
 from typing import List, Dict, Any
-import json
 
 class PaddleOCRBackend:
     """PaddleOCR backend for text extraction from images and PDFs."""
@@ -45,31 +44,43 @@ class PaddleOCRBackend:
             Dictionary containing extracted text and metadata
         """
         try:
-            # Run OCR on the image - PaddleOCR.ocr() is the correct method
-            result = self.ocr.ocr(image_path)
+            # Run OCR on the image using the predict method
+            result = self.ocr.predict(input=image_path)
             
             # Extract text and confidence scores
             extracted_text = []
             total_confidence = 0
             word_count = 0
             
-            # PaddleOCR returns a list of pages, each page is a list of line results
+            # Handle the new API response format
             if result and len(result) > 0:
-                page_result = result[0]  # Get first page
+                ocr_result = result[0]  # Get the first result
                 
-                if page_result:  # Check if page has content
-                    for line_result in page_result:
-                        if line_result and len(line_result) >= 2:
-                            # line_result format: [[[x1,y1], [x2,y2], [x3,y3], [x4,y4]], (text, confidence)]
-                            text_info = line_result[1]
-                            if text_info and len(text_info) >= 2:
-                                text = text_info[0]
-                                confidence = text_info[1]
-                                
+                # Convert OCRResult to dictionary and extract text
+                if hasattr(ocr_result, 'json'):
+                    result_data = ocr_result.json()
+                    
+                    # Extract text from rec_text field
+                    if 'rec_text' in result_data:
+                        texts = result_data['rec_text']
+                        scores = result_data.get('rec_score', [])
+                        
+                        for i, text in enumerate(texts):
+                            if text and text.strip():
+                                extracted_text.append(text.strip())
+                                confidence = scores[i] if i < len(scores) else 0.8
+                                total_confidence += confidence
+                                word_count += 1
+                
+                # Fallback: try to access attributes directly
+                if not extracted_text and hasattr(ocr_result, 'items'):
+                    for key, value in ocr_result.items():
+                        if key == 'rec_text' and isinstance(value, list):
+                            for i, text in enumerate(value):
                                 if text and text.strip():
-                                    extracted_text.append(text)
-                                    total_confidence += confidence
+                                    extracted_text.append(text.strip())
                                     word_count += 1
+                                    total_confidence += 0.8  # Default confidence
             
             # Calculate average confidence
             avg_confidence = total_confidence / word_count if word_count > 0 else 0
@@ -78,7 +89,7 @@ class PaddleOCRBackend:
                 'text': '\n'.join(extracted_text),
                 'word_count': word_count,
                 'avg_confidence': avg_confidence,
-                'raw_result': result
+                'raw_result': result[0].json() if result and hasattr(result[0], 'json') else str(result)
             }
             
         except Exception as e:
@@ -90,39 +101,14 @@ class PaddleOCRBackend:
                 'raw_result': None
             }
     
-    def extract_text_from_pdf(self, pdf_path: str, pages: List[int] = None, dpi: int = 300) -> Dict[str, Any]:
+    def extract_text_from_pdf(self, pdf_path: str, dpi: int = 200) -> Dict[str, Any]:
         """
         Extract text from PDF by converting to images first.
-        
-        Args:
-            pdf_path: Path to the PDF file
-            pages: List of page numbers to process (0-indexed). If None, process all pages
-            dpi: DPI for PDF to image conversion
-            
-        Returns:
-            Dictionary containing extracted text and metadata for all pages
+        Lower DPI to reduce memory usage.
         """
         try:
-            # Convert PDF to images
-            if pages:
-                # Convert only specified pages one by one to avoid range issues
-                images = []
-                actual_page_numbers = []
-                for page_num in pages:
-                    # pdf2image uses 1-based indexing, pages parameter is 0-based
-                    page_images = convert_from_path(
-                        pdf_path, 
-                        dpi=dpi,
-                        first_page=page_num + 1,
-                        last_page=page_num + 1
-                    )
-                    if page_images:
-                        images.extend(page_images)
-                        actual_page_numbers.append(page_num)
-            else:
-                # Convert all pages
-                images = convert_from_path(pdf_path, dpi=dpi)
-                actual_page_numbers = list(range(len(images)))
+            # Convert PDF to images with lower DPI to save memory
+            images = convert_from_path(pdf_path, dpi=dpi)
             
             all_results = []
             total_text = []
@@ -130,23 +116,20 @@ class PaddleOCRBackend:
             total_words = 0
             
             for i, image in enumerate(images):
-                # Get the actual page number
-                actual_page_num = actual_page_numbers[i]
-                
-                print(f"Processing page {actual_page_num + 1}")
+                print(f"Processing page {i + 1}/{len(images)}")
                 
                 # Save image temporarily
-                temp_image_path = f"temp_page_{actual_page_num}.jpg"
-                image.save(temp_image_path, 'JPEG')
+                temp_image_path = f"temp_page_{i}.jpg"
+                image.save(temp_image_path, 'JPEG', quality=85)
                 
                 # Extract text from this page
                 page_result = self.extract_text_from_image(temp_image_path)
-                page_result['page_number'] = actual_page_num + 1  # 1-indexed for display
+                page_result['page_number'] = i + 1
                 all_results.append(page_result)
                 
                 # Accumulate statistics
                 if page_result['text']:
-                    total_text.append(f"--- Page {actual_page_num + 1} ---")
+                    total_text.append(f"--- Page {i + 1} ---")
                     total_text.append(page_result['text'])
                     total_confidence += page_result['avg_confidence'] * page_result['word_count']
                     total_words += page_result['word_count']
@@ -157,9 +140,9 @@ class PaddleOCRBackend:
                 
                 # Print progress
                 if page_result.get('error'):
-                    print(f"  Error on page {actual_page_num + 1}: {page_result['error']}")
+                    print(f"  Error on page {i + 1}: {page_result['error']}")
                 else:
-                    print(f"  Extracted {page_result['word_count']} words from page {actual_page_num + 1}")
+                    print(f"  Extracted {page_result['word_count']} words from page {i + 1}")
             
             # Calculate overall statistics
             overall_confidence = total_confidence / total_words if total_words > 0 else 0
@@ -185,14 +168,14 @@ class PaddleOCRBackend:
 def main():
     """Test the PaddleOCR backend."""
     # Initialize the backend with GPU support
-    paddle_ocr = PaddleOCRBackend(lang='en', use_gpu=True)  # Enable GPU
+    paddle_ocr = PaddleOCRBackend(lang='en', use_gpu=True)
     
     # Test with PDF
     pdf_path = "pdfs/النظام الجزائي لجرائم التزوير.pdf"
     
     if os.path.exists(pdf_path):
         print(f"Processing PDF: {pdf_path}")
-        result = paddle_ocr.extract_text_from_pdf(pdf_path)
+        result = paddle_ocr.extract_text_from_pdf(pdf_path, dpi=150)  # Lower DPI
         
         if 'error' in result:
             print(f"Error: {result['error']}")
