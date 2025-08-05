@@ -1,0 +1,33 @@
+{
+    "_comment": "Configuration file for batch PDF processing - Copy this to config.json and modify as needed",
+    "processing": {
+        "default_workers": 8,
+        "chunk_size": 10,
+        "timeout_seconds": 300,
+        "max_retries": 3,
+        "skip_existing": true
+    },
+    "output": {
+        "create_directories": true,
+        "preserve_structure": true,
+        "log_level": "INFO",
+        "progress_updates": true
+    },
+    "text_processing": {
+        "normalize_arabic": true,
+        "remove_extra_whitespace": true,
+        "min_chunk_size": 100,
+        "max_chunk_size": 1000,
+        "chunk_overlap": 50
+    },
+    "file_patterns": {
+        "pdf_extensions": [".pdf", ".PDF"],
+        "output_extension": ".json",
+        "log_extension": ".log"
+    },
+    "memory": {
+        "max_memory_per_worker": "1GB",
+        "garbage_collect_frequency": 100,
+        "page_batch_size": 10
+    }
+}
