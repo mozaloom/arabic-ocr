@@ -1,4 +1,4 @@
-# Qaanoon AI - PDF Text Extraction Tools
+# PDF OCR and Text Extraction for Arabic Documents
 
 Extract text from Arabic legal documents using different methods and formats.
 
