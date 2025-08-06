@@ -23,17 +23,20 @@ python tesseract-to-json.py "pdfs/document.pdf"  # Tesseract
 
 ## Batch Processing
 
-#### Process All Files (Simple Format)
+#### Smart Processing
 ```bash
-python all-pdf-to-json-pdfplumber.py
+python all-pdf-to-json-smart.py
 ```
-*Processes all PDFs in `data/` → saves to `results/`*
+*Auto-detects OCR needs per page. Uses fast extraction + OCR fallback*
 
-#### Process All Files (Structured Format)
+#### Process All Files by Method
 ```bash
-python all-pdf-to-json-structured.py
+python all-pdf-to-json-pdfplumber.py    # Fast (text-based)
+python all-pdf-to-json-paddle.py        # PaddleOCR
+python all-pdf-to-json-tesseract.py     # Tesseract
+python all-pdf-to-json-structured.py    # Enhanced metadata
 ```
-*Processes all PDFs in `data/` → saves to `structured_results/` with enhanced metadata*
+*All process `data/` → save to `results/`*
 
 ## Output Formats
 
@@ -41,8 +44,7 @@ python all-pdf-to-json-structured.py
 **Structured:** `{metadata, document_info, content, analysis}`
 
 ## Features
-
-✅ Arabic text normalization • ⏱️ Progress tracking • 📁 Directory structure preservation • 📊 Processing statistics
+Arabic text normalization • Progress tracking • Smart OCR detection • Directory structure preservation
 
 ## File Structure
 
