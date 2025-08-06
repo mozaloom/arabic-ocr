@@ -1,56 +1,51 @@
-# Qaanoon AI - PDF Text Extraction Tools
+# Arabic OCR - PDF Text Extraction
 
-Extract text from Arabic legal documents using different methods and formats.
+Extract Arabic text from PDFs using OCR and text extraction methods.
 
-## Quick Start
+## Setup
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Single File Processing
+## Usage
 
-#### Fast Text Extraction (text-based PDFs)
+### Single Files
 ```bash
-python pdfplumber-to-json.py "pdfs/document.pdf"
+# Fast extraction (text-based PDFs)
+python pdfplumber-to-json.py "document.pdf"
+
+# OCR extraction (scanned documents)  
+python paddle-to-json.py "document.pdf"
+python tesseract-to-json.py "document.pdf"
 ```
 
-#### OCR Processing (scanned documents)
+### Batch Processing
 ```bash
-python paddle-to-json.py "pdfs/document.pdf"     # PaddleOCR
-python tesseract-to-json.py "pdfs/document.pdf"  # Tesseract
-```
-
-## Batch Processing
-
-#### Smart Processing
-```bash
+# Smart processing (auto-detects OCR needs)
 python all-pdf-to-json-smart.py
-```
-*Auto-detects OCR needs per page. Uses fast extraction + OCR fallback*
 
-#### Process All Files by Method
-```bash
-python all-pdf-to-json-pdfplumber.py    # Fast (text-based)
-python all-pdf-to-json-paddle.py        # PaddleOCR
+# Batch by method
+python all-pdf-to-json-pdfplumber.py    # Fast extraction
+python all-pdf-to-json-paddle.py        # PaddleOCR  
 python all-pdf-to-json-tesseract.py     # Tesseract
-python all-pdf-to-json-structured.py    # Enhanced metadata
+python all-pdf-to-json-structured.py    # With metadata
 ```
-*All process `data/` → save to `results/`*
-
-## Output Formats
-
-**Simple:** `{filename, text}`  
-**Structured:** `{metadata, document_info, content, analysis}`
 
 ## Features
-Arabic text normalization • Progress tracking • Smart OCR detection • Directory structure preservation
+- Arabic text normalization
+- Multiple OCR engines (PaddleOCR, Tesseract, EasyOCR, TrOCR)
+- Smart OCR detection
+- Structured output with metadata
 
-## File Structure
+## Project Structure
 
 ```
-data/              # Input PDFs (organized by category)
-results/           # Simple JSON output  
-structured_results/ # Enhanced JSON with metadata
-output/            # Single file outputs
+├── src/                    # Core modules
+│   ├── extraction/         # Text extraction backends
+│   ├── ocr/               # OCR implementations  
+│   └── utils/             # Utilities & logging
+├── all-pdf-to-json-*.py   # Batch processing scripts
+├── *-to-json.py          # Single file processors
+└── requirements.txt       # Dependencies
 ```
