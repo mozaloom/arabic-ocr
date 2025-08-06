@@ -1,57 +1,54 @@
 # Qaanoon AI - PDF Text Extraction Tools
 
-Simple tools for extracting text from Arabic legal documents using different OCR engines.
+Extract text from Arabic legal documents using different methods and formats.
 
 ## Quick Start
 
-### Prerequisites
 ```bash
 pip install -r requirements.txt
 ```
 
-### Usage
+## Single File Processing
 
-Choose the extraction method that works best for your documents:
-
-#### 1. Fast Text Extraction (Recommended for text-based PDFs)
+#### Fast Text Extraction (text-based PDFs)
 ```bash
 python pdfplumber-to-json.py "pdfs/document.pdf"
 ```
 
-#### 2. PaddleOCR (Best for Arabic scanned documents)
+#### OCR Processing (scanned documents)
 ```bash
-python paddle-to-json.py "pdfs/document.pdf"
+python paddle-to-json.py "pdfs/document.pdf"     # PaddleOCR
+python tesseract-to-json.py "pdfs/document.pdf"  # Tesseract
 ```
 
-#### 3. Tesseract OCR (Alternative OCR engine)
+## Batch Processing
+
+#### Process All Files (Simple Format)
 ```bash
-python tesseract-to-json.py "pdfs/document.pdf"
+python all-pdf-to-json-pdfplumber.py
 ```
+*Processes all PDFs in `data/` → saves to `results/`*
 
-### Output
-
-All extracted text is saved as JSON files in the `output/` directory:
-```json
-{
-  "filename": "document.pdf",
-  "text": "Extracted Arabic text content..."
-}
+#### Process All Files (Structured Format)
+```bash
+python all-pdf-to-json-structured.py
 ```
+*Processes all PDFs in `data/` → saves to `structured_results/` with enhanced metadata*
 
-### Features
+## Output Formats
 
-- ✅ Arabic text processing and normalization
-- ⏱️ Real-time progress tracking with timers
-- 📁 Organized output in dedicated directory
-- 🔄 Page-by-page processing feedback
-- 📊 Character count and processing statistics
+**Simple:** `{filename, text}`  
+**Structured:** `{metadata, document_info, content, analysis}`
 
-### File Structure
+## Features
+
+✅ Arabic text normalization • ⏱️ Progress tracking • 📁 Directory structure preservation • 📊 Processing statistics
+
+## File Structure
 
 ```
-pdfs/           # Input PDF files
-output/         # Generated JSON files
-src/           # Core processing modules
+data/              # Input PDFs (organized by category)
+results/           # Simple JSON output  
+structured_results/ # Enhanced JSON with metadata
+output/            # Single file outputs
 ```
-
-That's it! The tools handle Arabic text normalization and provide detailed progress feedback automatically.
