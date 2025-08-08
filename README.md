@@ -2,7 +2,7 @@
 
 Extract text from Arabic legal documents using different methods and formats.
 
-## Quick Start
+## Quick Start 
 
 ```bash
 make install
