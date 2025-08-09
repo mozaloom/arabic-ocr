@@ -20,7 +20,7 @@ make process-tesseract            # Tesseract OCR processing
 make process-structured           # Enhanced structured output
 make process-smart-structured     # Smart + structured output
 ```
-
+ 
 ### Single File Processing
 ```bash
 make process-single-fast FILE="path/to/file.pdf"
